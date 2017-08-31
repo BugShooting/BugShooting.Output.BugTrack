@@ -148,7 +148,7 @@ namespace BS.Output.BugTrack
           requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
         }
         
-        using (HttpWebResponse response =  (HttpWebResponse)(await request.GetResponseAsync()))
+        using (HttpWebResponse response =  (HttpWebResponse)await request.GetResponseAsync())
         {
 
           if (response.StatusCode != HttpStatusCode.OK)
