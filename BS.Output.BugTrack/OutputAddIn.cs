@@ -143,9 +143,9 @@ namespace BS.Output.BugTrack
         
         using (Stream requestStream = await request.GetRequestStreamAsync())
         {
-          requestStream.Write(postDataBytes, 0, postDataBytes.Length);
-          requestStream.Write(fileBytes, 0, fileBytes.Length);
-          requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+          await requestStream.WriteAsync(postDataBytes, 0, postDataBytes.Length);
+          await requestStream.WriteAsync(fileBytes, 0, fileBytes.Length);
+          await requestStream.WriteAsync(boundaryBytes, 0, boundaryBytes.Length);
         }
         
         using (HttpWebResponse response =  (HttpWebResponse)await request.GetResponseAsync())
