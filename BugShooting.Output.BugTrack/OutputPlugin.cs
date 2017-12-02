@@ -5,10 +5,13 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Text;
 using System.Windows.Forms;
+using BS.Plugin.V3.Output;
+using BS.Plugin.V3.Common;
+using BS.Plugin.V3.Utilities;
 
-namespace BS.Output.BugTrack
+namespace BugShooting.Output.BugTrack
 {
-  public class OutputAddIn: V3.OutputAddIn<Output>
+  public class OutputPlugin : OutputPlugin<Output>
   {
 
     protected override string Name
@@ -72,39 +75,39 @@ namespace BS.Output.BugTrack
 
     }
 
-    protected override OutputValueCollection SerializeOutput(Output Output)
+    protected override OutputValues SerializeOutput(Output Output)
     {
 
-      OutputValueCollection outputValues = new OutputValueCollection();
+      OutputValues outputValues = new OutputValues();
 
-      outputValues.Add(new OutputValue("Name", Output.Name));
-      outputValues.Add(new OutputValue("Url", Output.Url));
-      outputValues.Add(new OutputValue("FileName", Output.FileName));
-      outputValues.Add(new OutputValue("FileFormat", Output.FileFormat));
-      outputValues.Add(new OutputValue("LastEntryID", Output.LastEntryID.ToString()));
+      outputValues.Add("Name", Output.Name);
+      outputValues.Add("Url", Output.Url);
+      outputValues.Add("FileName", Output.FileName);
+      outputValues.Add("FileFormat", Output.FileFormat);
+      outputValues.Add("LastEntryID", Output.LastEntryID.ToString());
 
       return outputValues;
       
     }
 
-    protected override Output DeserializeOutput(OutputValueCollection OutputValues)
+    protected override Output DeserializeOutput(OutputValues OutputValues)
     {
 
-      return new Output(OutputValues["Name", this.Name].Value,
-                        OutputValues["Url", ""].Value, 
-                        OutputValues["FileName", "Screenshot"].Value, 
-                        OutputValues["FileFormat", ""].Value,
-                        Convert.ToInt32(OutputValues["LastEntryID", "1"].Value));
+      return new Output(OutputValues["Name", this.Name],
+                        OutputValues["Url", ""], 
+                        OutputValues["FileName", "Screenshot"], 
+                        OutputValues["FileFormat", ""],
+                        Convert.ToInt32(OutputValues["LastEntryID", "1"]));
 
     }
 
-    protected override async Task<V3.SendResult> Send(IWin32Window Owner, Output Output, V3.ImageData ImageData)
+    protected override async Task<SendResult> Send(IWin32Window Owner, Output Output, ImageData ImageData)
     {
 
       try
       {
 
-        string fileName = V3.FileHelper.GetFileName(Output.FileName, Output.FileFormat, ImageData);
+        string fileName = FileHelper.GetFileName(Output.FileName, ImageData);
 
         // Show send window
         Send send = new Send(Output.Url, Output.LastEntryID, fileName);
@@ -114,12 +117,12 @@ namespace BS.Output.BugTrack
 
         if (!send.ShowDialog() == true)
         {
-          return new V3.SendResult(V3.Result.Canceled);
+          return new SendResult(Result.Canceled);
         }
 
-        string fullFileName = string.Format("{0}.{1}", send.FileName, V3.FileHelper.GetFileExtention(Output.FileFormat));
-        string mimeType = V3.FileHelper.GetMimeType(Output.FileFormat);
-        byte[] fileBytes = V3.FileHelper.GetFileBytes(Output.FileFormat, ImageData);
+        string fullFileName = string.Format("{0}.{1}", send.FileName, FileHelper.GetFileExtention(Output.FileFormat));
+        string mimeType = FileHelper.GetMimeType(Output.FileFormat);
+        byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormat, ImageData);
 
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(string.Format("{0}/upload.ashx", Output.Url));
 
@@ -153,7 +156,7 @@ namespace BS.Output.BugTrack
 
           if (response.StatusCode != HttpStatusCode.OK)
           {
-            return new V3.SendResult(V3.Result.Failed, response.StatusDescription);
+            return new SendResult(Result.Failed, response.StatusDescription);
           }
 
           string fileID = null;
@@ -167,18 +170,18 @@ namespace BS.Output.BugTrack
 
           if (send.CreateNewEntry)
           {
-            V3.WebHelper.OpenUrl(string.Format("{0}/openbug.aspx?files={1}", Output.Url, fileID));
-            return new V3.SendResult(V3.Result.Success);
+            WebHelper.OpenUrl(string.Format("{0}/openbug.aspx?files={1}", Output.Url, fileID));
+            return new SendResult(Result.Success);
           }
           else
           {
-            V3.WebHelper.OpenUrl(string.Format("{0}/editbug.aspx?id={1}&files={2}", Output.Url, send.EntryID, fileID));
-            return new V3.SendResult(V3.Result.Success,
-                                    new Output(Output.Name,
-                                              Output.Url,
-                                              Output.FileName,
-                                              Output.FileFormat,
-                                              send.EntryID));
+            WebHelper.OpenUrl(string.Format("{0}/editbug.aspx?id={1}&files={2}", Output.Url, send.EntryID, fileID));
+            return new SendResult(Result.Success,
+                                  new Output(Output.Name,
+                                            Output.Url,
+                                            Output.FileName,
+                                            Output.FileFormat,
+                                            send.EntryID));
           }
                   
         }
@@ -186,7 +189,7 @@ namespace BS.Output.BugTrack
       }
       catch (Exception ex)
       {
-        return new V3.SendResult(V3.Result.Failed, ex.Message);
+        return new SendResult(Result.Failed, ex.Message);
       }
 
     }
