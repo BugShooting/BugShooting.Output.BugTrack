@@ -107,7 +107,7 @@ namespace BugShooting.Output.BugTrack
       try
       {
 
-        string fileName = FileHelper.GetFileName(Output.FileName, ImageData);
+        string fileName = AttributeHelper.ReplaceAttributes(Output.FileName, ImageData);
 
         // Show send window
         Send send = new Send(Output.Url, Output.LastEntryID, fileName);
