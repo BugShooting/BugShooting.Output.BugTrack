@@ -120,7 +120,7 @@ namespace BugShooting.Output.BugTrack
           return new SendResult(Result.Canceled);
         }
 
-        string fullFileName = string.Format("{0}.{1}", send.FileName, FileHelper.GetFileExtention(Output.FileFormat));
+        string fullFileName = string.Format("{0}.{1}", send.FileName, FileHelper.GetFileExtension(Output.FileFormat));
         string mimeType = FileHelper.GetMimeType(Output.FileFormat);
         byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormat, ImageData);
 
