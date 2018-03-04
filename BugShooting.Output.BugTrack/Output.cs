@@ -1,4 +1,5 @@
 ﻿using BS.Plugin.V3.Output;
+using System;
 
 namespace BugShooting.Output.BugTrack
 {
@@ -9,19 +10,19 @@ namespace BugShooting.Output.BugTrack
     string name;
     string url;
     string fileName;
-    string fileFormat;
+    Guid fileFormatID;
     int lastEntryID;
 
     public Output(string name, 
                   string url, 
-                  string fileName, 
-                  string fileFormat,
+                  string fileName,
+                  Guid fileFormatID,
                   int lastEntryID)
     {
       this.name = name;
       this.url = url;
       this.fileName = fileName;
-      this.fileFormat = fileFormat;
+      this.fileFormatID = fileFormatID;
       this.lastEntryID = lastEntryID;
     }
     
@@ -45,11 +46,11 @@ namespace BugShooting.Output.BugTrack
       get { return fileName; }
     }
 
-    public string FileFormat
+    public Guid FileFormatID
     {
-      get { return fileFormat; }
+      get { return fileFormatID; }
     }
-    
+
     public int LastEntryID
     {
       get { return lastEntryID; }

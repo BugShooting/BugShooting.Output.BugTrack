@@ -23,27 +23,13 @@ namespace BugShooting.Output.BugTrack
         FileNameReplacementList.Items.Add(item);
       }
 
-      IEnumerable<string> fileFormats = FileHelper.GetFileFormats();
-      foreach (string fileFormat in fileFormats)
-      {
-        ComboBoxItem item = new ComboBoxItem();
-        item.Content = fileFormat;
-        item.Tag = fileFormat;
-        FileFormatComboBox.Items.Add(item);
-      }
-
       NameTextBox.Text = output.Name;
       UrlTextBox.Text = output.Url;
       FileNameTextBox.Text = output.FileName;
 
-      if (fileFormats.Contains(output.FileFormat))
-      {
-        FileFormatComboBox.SelectedValue = output.FileFormat;
-      }
-      else {
-        FileFormatComboBox.SelectedValue = fileFormats.First();
-      }
-     
+      FileFormatComboBox.ItemsSource = FileHelper.GetFileFormats();
+      FileFormatComboBox.SelectedValue = output.FileFormatID;
+
       NameTextBox.TextChanged += ValidateData;
       UrlTextBox.TextChanged += ValidateData;
       FileFormatComboBox.SelectionChanged += ValidateData;
@@ -68,11 +54,11 @@ namespace BugShooting.Output.BugTrack
       get { return FileNameTextBox.Text; }
     }
 
-    public string FileFormat
+    public Guid FileFormatID
     {
-      get { return (string)FileFormatComboBox.SelectedValue; }
+      get { return (Guid)FileFormatComboBox.SelectedValue; }
     }
-     
+
     private void FileNameReplacement_Click(object sender, RoutedEventArgs e)
     {
       FileNameReplacement.ContextMenu.IsEnabled = true;

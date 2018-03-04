@@ -41,7 +41,7 @@
           <ContextMenu x:Name="FileNameReplacementList" />
         </Button.ContextMenu>
       </Button>
-      <ComboBox x:Name="FileFormatComboBox" Grid.Column="1" Width="60" HorizontalAlignment="Right" SelectedValuePath="Tag" local:Validation.Required="True" />
+      <ComboBox x:Name="FileFormatComboBox" Grid.Column="1" Width="60" HorizontalAlignment="Right" DisplayMemberPath="Name" SelectedValuePath="ID" local:Validation.Required="True" />
     </Grid>
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0" >
       <Button x:Name="OK" Width="80" Height="24" Content="OK" Margin="4" IsDefault="True" Click="OK_Click" />

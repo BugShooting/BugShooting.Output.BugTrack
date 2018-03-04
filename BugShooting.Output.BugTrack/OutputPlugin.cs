@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using BS.Plugin.V3.Output;
 using BS.Plugin.V3.Common;
 using BS.Plugin.V3.Utilities;
+using System.Linq;
 
 namespace BugShooting.Output.BugTrack
 {
@@ -45,7 +46,7 @@ namespace BugShooting.Output.BugTrack
       Output output = new Output(Name, 
                                  String.Empty, 
                                  "Screenshot",
-                                 String.Empty, 
+                                 FileHelper.GetFileFormats().First().ID,
                                  1);
 
       return EditOutput(Owner, output);
@@ -65,7 +66,7 @@ namespace BugShooting.Output.BugTrack
         return new Output(edit.OutputName,
                           edit.Url,
                           edit.FileName,
-                          edit.FileFormat,
+                          edit.FileFormatID,
                           Output.LastEntryID);
       }
       else
@@ -83,7 +84,7 @@ namespace BugShooting.Output.BugTrack
       outputValues.Add("Name", Output.Name);
       outputValues.Add("Url", Output.Url);
       outputValues.Add("FileName", Output.FileName);
-      outputValues.Add("FileFormat", Output.FileFormat);
+      outputValues.Add("FileFormatID", Output.FileFormatID.ToString());
       outputValues.Add("LastEntryID", Output.LastEntryID.ToString());
 
       return outputValues;
@@ -95,8 +96,8 @@ namespace BugShooting.Output.BugTrack
 
       return new Output(OutputValues["Name", this.Name],
                         OutputValues["Url", ""], 
-                        OutputValues["FileName", "Screenshot"], 
-                        OutputValues["FileFormat", ""],
+                        OutputValues["FileName", "Screenshot"],
+                        new Guid(OutputValues["FileFormatID", ""]),
                         Convert.ToInt32(OutputValues["LastEntryID", "1"]));
 
     }
@@ -120,9 +121,11 @@ namespace BugShooting.Output.BugTrack
           return new SendResult(Result.Canceled);
         }
 
-        string fullFileName = string.Format("{0}.{1}", send.FileName, FileHelper.GetFileExtension(Output.FileFormat));
-        string mimeType = FileHelper.GetMimeType(Output.FileFormat);
-        byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormat, ImageData);
+        IFileFormat fileFormat = FileHelper.GetFileFormat(Output.FileFormatID);
+
+        string fullFileName = string.Format("{0}.{1}", send.FileName, fileFormat.FileExtension);
+        
+        byte[] fileBytes = FileHelper.GetFileBytes(Output.FileFormatID, ImageData);
 
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(string.Format("{0}/upload.ashx", Output.Url));
 
@@ -136,7 +139,7 @@ namespace BugShooting.Output.BugTrack
         postData.AppendFormat("--{0}", boundary);
         postData.AppendLine();
         postData.AppendFormat("Content-Disposition: form-data; name=\"fileupload\"; filename=\"{0}\"\n", fullFileName);
-        postData.AppendFormat("Content-Type: {0}\n",  mimeType);
+        postData.AppendFormat("Content-Type: {0}\n", fileFormat.MimeType);
         postData.AppendLine();
 
         byte[] postDataBytes = Encoding.UTF8.GetBytes(postData.ToString());
@@ -180,7 +183,7 @@ namespace BugShooting.Output.BugTrack
                                   new Output(Output.Name,
                                             Output.Url,
                                             Output.FileName,
-                                            Output.FileFormat,
+                                            Output.FileFormatID,
                                             send.EntryID));
           }
                   
